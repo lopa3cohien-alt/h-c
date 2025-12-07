@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CareerPath Finder — Demo (HTML)</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#f8fafc;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#2563eb; /* blue */
+      --accent:#4338ca;  /* indigo */
+      --radius:20px;
+      --glass: rgba(255,255,255,0.6);
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --card:#071226;
+      --text:#e6eef8;
+      --muted:#93a4c3;
+      --glass: rgba(10,14,22,0.6);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg), #f6f8fb 300px);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-bottom:60px;
+    }
+
+    /* Header */
+    header{position:sticky;top:0;backdrop-filter: blur(6px); background:var(--glass); border-bottom:1px solid rgba(0,0,0,0.04); z-index:50;}
+    .container{max-width:1150px;margin:0 auto;padding:18px}
+    .flex{display:flex;align-items:center;gap:12px}
+    .logo{
+      display:flex;align-items:center;gap:10px;
+    }
+    .brand{
+      display:flex;flex-direction:column;
+    }
+    .brand .title{font-weight:700}
+    nav a{margin:0 8px;color:var(--muted);text-decoration:none;font-size:14px}
+    .btn-primary{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:10px 16px;border-radius:30px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(56,80,232,0.12);font-weight:600}
+    .ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:12px}
+
+    /* Hero */
+    .hero{padding:48px 0}
+    .hero-grid{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center}
+    .hero-title{font-size:34px;line-height:1.03;font-weight:700;margin:0}
+    .hero-desc{color:var(--muted);margin-top:12px}
+
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 10px 30px rgba(2,6,23,0.04)}
+    .soft{border-radius:14px;padding:12px;background:linear-gradient(180deg, rgba(37,99,235,0.06), rgba(67,56,202,0.03))}
+
+    /* quiz */
+    .quiz-list{display:grid;gap:12px}
+    .question{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.6),transparent)}
+    .scale-buttons button{width:36px;height:36px;border-radius:999px;border:none;cursor:pointer}
+    .scale-buttons button.active{background:var(--primary);color:white;box-shadow:0 6px 14px rgba(37,99,235,0.18)}
+
+    /* responsive */
+    @media (max-width:920px){
+      .hero-grid{grid-template-columns:1fr; padding-bottom:10px}
+      nav{display:none}
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted);font-size:13px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;background:rgba(0,0,0,0.04);font-weight:600}
+    .small{font-size:13px}
+
+    /* schools list */
+    .schools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+
+    /* compare */
+    .compare-table{width:100%;border-collapse:collapse}
+    .compare-table th,.compare-table td{padding:10px;border-bottom:1px solid rgba(0,0,0,0.04);text-align:left}
+
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,0.4);display:flex;align-items:center;justify-content:center;padding:20px;z-index:60}
+    .modal .content{max-width:900px;width:100%}
+
+    /* subtle transitions & hover */
+    .hover-soft:hover{transform:translateY(-6px);transition:all .24s}
+    .fade-in{animation:fadein .45s ease both}
+    @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    /* footer */
+    footer{padding:28px 0;color:var(--muted);text-align:center;border-top:1px solid rgba(0,0,0,0.04);background:transparent;position:fixed;left:0;right:0;bottom:0}
+  </style>
+</head>
+<body data-theme="light">
+  <!-- Header -->
+  <header>
+    <div class="container flex" style="justify-content:space-between">
+      <div class="flex logo">
+        <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary),var(--accent));color:white;font-weight:700">CP</div>
+        <div class="brand">
+          <div class="title">CareerPath Finder</div>
+          <div class="muted small">Gợi ý trường theo sở thích & năng lực</div>
+        </div>
+      </div>
+
+      <nav class="muted small">
+        <a href="#" onclick="navTo('home');return false">Trang chủ</a>
+        <a href="#" onclick="navTo('quiz');return false">Trắc nghiệm</a>
+        <a href="#" onclick="navTo('schools');return false">Gợi ý trường</a>
+        <a href="#" onclick="navTo('compare');return false">So sánh trường</a>
+        <a href="#" onclick="navTo('blog');return false">Blog</a>
+        <a href="#" onclick="navTo('contact');return false">Liên hệ</a>
+      </nav>
+
+      <div class="flex">
+        <button class="ghost small" id="themeToggle">Dark</button>
+        <button class="btn-primary" onclick="navTo('quiz')">Bắt đầu đánh giá ngay</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+    <!-- Home / Hero -->
+    <section id="page-home" class="hero fade-in" aria-hidden="false">
+      <div class="hero-grid">
+        <div>
+          <h1 class="hero-title">Tìm trường phù hợp nhất với sở thích và năng lực của bạn</h1>
+          <p class="hero-desc">Hệ thống phân tích 360° dựa trên sở thích, tính cách, học lực và mục tiêu nghề nghiệp.</p>
+
+          <div style="margin-top:18px;display:flex;gap:12px">
+            <button class="btn-primary" onclick="navTo('quiz')">Làm bài trắc nghiệm miễn phí</button>
+            <button class="ghost" onclick="navTo('schools')">Xem trường gợi ý</button>
+          </div>
+
+          <div style="margin-top:18px;display:flex;gap:8px" class="chips">
+            <div class="chip">Công nghệ AI</div>
+            <div class="chip">Phù hợp cao</div>
+            <div class="chip">So sánh thông minh</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card soft">
+            <div style="height:260px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+              <div style="font-weight:700;font-size:18px">3D Illustration</div>
+              <div class="muted small" style="margin-top:8px">Học sinh — Trường — Dữ liệu AI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- quick features -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:24px">
+        <div class="card hover-soft">
+          <strong>30 câu trắc nghiệm</strong>
+          <div class="muted small">RIASEC + Đa trí thông minh + Học lực</div>
+        </div>
+        <div class="card hover-soft">
+          <strong>Bộ lọc trường thông minh</strong>
+          <div class="muted small">Khu vực, học phí, tỉ lệ có việc, điểm chuẩn</div>
+        </div>
+        <div class="card hover-soft">
+          <strong>So sánh 3 trường</strong>
+          <div class="muted small">Ngành, học phí, điểm chuẩn, review</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="page-quiz" style="display:none;padding-top:10px">
+      <div style="display:flex;gap:18px;align-items:start;flex-wrap:wrap">
+        <div style="flex:1;min-width:320px">
+          <div class="card">
+            <h2 style="margin:0 0 6px 0">Bài trắc nghiệm (30 câu)</h2>
+            <div class="muted small">Dựa trên Holland RIASEC, Đa trí thông minh & điểm học lực</div>
+
+            <div style="margin-top:12px" id="quizArea">
+              <!-- Questions inserted by JS -->
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+              <button class="ghost" onclick="saveProgress()">Lưu tạm</button>
+              <button class="btn-primary" onclick="submitQuiz()">Hoàn tất & Xem kết quả</button>
+            </div>
+          </div>
+        </div>
+
+        <aside style="width:320px">
+          <div class="card">
+            <h4 style="margin:0">Tiến trình</h4>
+            <div class="muted small" style="margin-top:8px">Câu đã trả lời: <span id="answeredCount">0</span>/30</div>
+
+            <hr style="margin:10px 0;border:none;border-top:1px solid rgba(0,0,0,0.04)">
+
+            <label class="small muted">Điểm học lực (0-30)</label>
+            <input id="learningScore" type="range" min="0" max="30" value="20" oninput="document.getElementById('lsVal').innerText=this.value">
+            <div class="small muted" id="lsVal">20</div>
+
+            <label class="small muted" style="margin-top:12px;display:block">Khu vực ưu tiên</label>
+            <select id="regionSelect" class="small" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(0,0,0,0.04)">
+              <option value="">Không chọn</option>
+              <option value="Bắc">Bắc</option>
+              <option value="Trung">Trung</option>
+              <option value="Nam">Nam</option>
+            </select>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h4 style="margin:0">Gợi ý nhanh</h4>
+            <div class="muted small" style="margin-top:8px">Trả lời trung thực để kết quả chính xác hơn.</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section id="page-result" style="display:none;padding-top:10px">
+      <div class="card">
+        <h2 style="margin:0 0 6px 0">Kết quả đánh giá</h2>
+        <div class="muted small">Tóm tắt sở thích, nhóm tính cách và ngành phù hợp</div>
+
+        <div style="display:grid;grid-template-columns:360px 1fr;gap:18px;margin-top:12px;align-items:start">
+          <div class="card" style="padding:12px">
+            <h4 style="margin:0">Phân loại Holland (RIASEC)</h4>
+            <canvas id="radarChart" width="340" height="260"></canvas>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:12px;padding:12px">
+              <h4 style="margin:0">Điểm học lực</h4>
+              <canvas id="barChart" width="600" height="180"></canvas>
+            </div>
+
+            <div class="card" style="padding:12px">
+              <h4 style="margin:0">Ngành phù hợp</h4>
+              <div id="topMajors" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <h4 style="margin:0">Trường đề xuất</h4>
+          <div id="recommendList" style="margin-top:8px;display:grid;gap:8px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schools list -->
+    <section id="page-schools" style="display:none;padding-top:10px">
+      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <h2 style="margin:0">Danh sách trường</h2>
+          <div class="muted small">Lọc & tìm kiếm thông minh</div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="searchSchool" placeholder="Tìm theo tên hoặc ngành" style="padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.05)">
+          <select id="filterRegion" onchange="applyFilters()" style="padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.05)">
+            <option value="">Khu vực</option>
+            <option value="Bắc">Bắc</option>
+            <option value="Trung">Trung</option>
+            <option value="Nam">Nam</option>
+          </select>
+          <input id="filterTuition" type="number" placeholder="Học phí tối đa" oninput="applyFilters()" style="padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);width:140px">
+        </div>
+      </div>
+
+      <div id="schoolsGrid" class="schools-grid"></div>
+    </section>
+
+    <!-- Compare -->
+    <section id="page-compare" style="display:none;padding-top:10px">
+      <div class="card">
+        <h2 style="margin:0">So sánh trường (tối đa 3)</h2>
+        <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+          <div id="compareList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+
+        <div style="margin-top:12px;overflow:auto" class="card">
+          <table class="compare-table">
+            <thead>
+              <tr id="compareHead"><th>Trường</th></tr>
+            </thead>
+            <tbody id="compareBody">
+              <!-- rows injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog -->
+    <section id="page-blog" style="display:none;padding-top:10px">
+      <div class="card">
+        <h2>Blog tư vấn</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px">
+          <article class="card hover-soft">
+            <img src="https://via.placeholder.com/600x300" style="width:100%;height:120px;object-fit:cover;border-radius:12px" alt="">
+            <h3 style="margin:8px 0 0 0">Cách chọn ngành phù hợp với bạn</h3>
+            <div class="muted small">Hướng nghiệp</div>
+          </article>
+          <article class="card hover-soft">
+            <img src="https://via.placeholder.com/600x300" style="width:100%;height:120px;object-fit:cover;border-radius:12px" alt="">
+            <h3 style="margin:8px 0 0 0">Chuẩn bị hồ sơ thi đại học</h3>
+            <div class="muted small">Bí quyết thi cử</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="page-contact" style="display:none;padding-top:10px">
+      <div class="card">
+        <h2>Liên hệ</h2>
+        <form onsubmit="event.preventDefault();alert('Đã gửi (demo)')">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+            <input placeholder="Họ tên" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.05)">
+            <input placeholder="Email" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.05)">
+          </div>
+          <textarea placeholder="Nội dung" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);min-height:120px"></textarea>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end">
+            <button class="btn-primary">Gửi liên hệ</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal (school detail) -->
+  <div id="modal" class="modal" style="display:none">
+    <div class="content card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 id="modalTitle"></h3>
+          <div class="muted small" id="modalRegion"></div>
+        </div>
+        <div>
+          <button class="ghost" onclick="closeModal()">Đóng</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 320px;gap:12px">
+        <div>
+          <h4>Ngành đào tạo</h4>
+          <ul id="modalMajors" class="muted small"></ul>
+
+          <h4 style="margin-top:12px">Review sinh viên</h4>
+          <div id="modalReviews"></div>
+        </div>
+
+        <div class="card">
+          <h4>Điểm chuẩn 3 năm</h4>
+          <canvas id="modalChart" width="300" height="220"></canvas>
+          <div style="margin-top:10px">Phù hợp với bạn: <strong id="modalFit">87%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    CareerPath Finder • © <span id="year"></span>
+  </footer>
+
+<script>
+  // ====== MOCK DATA ======
+  const SCHOOLS = [
+    { id:"dhhcm", name:"Đại học Hùng Vương", region:"Nam", tuition:12000000, majors:["Công nghệ thông tin","Kinh tế","Quản trị kinh doanh"], score_last3:[18.5,19.0,19.2], employment_rate:0.86, facilities_score:4.2, reviews:[{user:"Lan",text:"Môi trường học thân thiện",rating:4},{user:"Minh",text:"Giảng viên nhiệt tình",rating:5}]},
+    { id:"dhhn", name:"Đại học Hà Nội", region:"Bắc", tuition:25000000, majors:["Ngôn ngữ","Truyền thông","Khoa học xã hội"], score_last3:[22.0,22.5,23.0], employment_rate:0.9, facilities_score:4.6, reviews:[{user:"Huy",text:"Cơ sở vật chất tốt",rating:5},{user:"Nga",text:"Học phí hơi cao",rating:4}]},
+    { id:"dhdn", name:"Đại học Đà Nẵng", region:"Trung", tuition:15000000, majors:["Công nghệ thông tin","Dược","Du lịch"], score_last3:[16.5,17.0,17.8], employment_rate:0.78, facilities_score:4.0, reviews:[{user:"Anh",text:"Gần biển, môi trường năng động",rating:4}]},
+  ];
+
+  const HOLLAND_KEYS = ["R","I","A","S","E","C"];
+  const HOLLAND_LABELS = {"R":"Thực tế","I":"Điều tra","A":"Nghệ thuật","S":"Xã hội","E":"Doanh nghiệp","C":"Thông thường"};
+
+  // ====== App state ======
+  let answers = {}; // qid => 1-5
+  let learningScore = 20;
+  let regionPref = "";
+  let currentPage = 'home';
+  let radarChartInstance = null;
+  let barChartInstance = null;
+
+  // Year in footer
+  document.getElementById('year').innerText = new Date().getFullYear();
+
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    const el = document.body;
+    if(el.getAttribute('data-theme') === 'dark'){ el.setAttribute('data-theme','light'); themeToggle.innerText='Dark'; }
+    else { el.setAttribute('data-theme','dark'); themeToggle.innerText='Light'; }
+  });
+
+  // Navigation
+  function navTo(page){
+    currentPage = page;
+    document.querySelectorAll('main section').forEach(s => s.style.display='none');
+    document.getElementById('page-' + page).style.display = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(page==='quiz') renderQuiz();
+    if(page==='result') renderResult();
+    if(page==='schools') renderSchools();
+    if(page==='compare') renderCompare();
+  }
+
+  // ====== QUIZ generation ======
+  function makeQuestions(){
+    const qs=[];
+    for(let i=1;i<=30;i++){
+      const dim = HOLLAND_KEYS[(i-1)%6];
+      qs.push({id:i, text:`Câu ${i}: Tôi thích hoạt động liên quan tới ${HOLLAND_LABELS[dim]} (1-5)`, dimension:dim});
+    }
+    return qs;
+  }
+
+  function renderQuiz(){
+    const quizArea = document.getElementById('quizArea');
+    quizArea.innerHTML='';
+    const qs = makeQuestions();
+    const saved = JSON.parse(localStorage.getItem('cpf_quiz_answers') || '{}');
+    answers = saved.answers || {};
+    learningScore = saved.learningScore ?? 20;
+    regionPref = saved.region || '';
+    document.getElementById('learningScore').value = learningScore;
+    document.getElementById('lsVal').innerText = learningScore;
+    document.getElementById('regionSelect').value = regionPref;
+
+    qs.forEach(q=>{
+      const div = document.createElement('div');
+      div.className='question';
+      div.innerHTML = `
+        <div style="flex:1">
+          <div style="font-weight:600">${q.text}</div>
+          <div class="muted small">${HOLLAND_LABELS[q.dimension]}</div>
+        </div>
+        <div class="scale-buttons" style="display:flex;gap:6px;margin-left:12px">
+          ${[1,2,3,4,5].map(n=>`<button data-q="${q.id}" data-v="${n}" class="${answers[q.id]==n?'active':''}">${n}</button>`).join('')}
+        </div>
+      `;
+      quizArea.appendChild(div);
+    });
+
+    // attach events
+    document.querySelectorAll('.scale-buttons button').forEach(b=>{
+      b.addEventListener('click', (e)=>{
+        const q = b.dataset.q;
+        const v = Number(b.dataset.v);
+        answers[q]=v;
+        updateAnsweredCount();
+        // toggle active
+        const parent = b.parentElement;
+        parent.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        b.classList.add('active');
+      });
+    });
+
+    updateAnsweredCount();
+  }
+
+  function updateAnsweredCount(){
+    document.getElementById('answeredCount').innerText = Object.keys(answers).length;
+  }
+
+  function saveProgress(){
+    learningScore = Number(document.getElementById('learningScore').value);
+    regionPref = document.getElementById('regionSelect').value;
+    localStorage.setItem('cpf_quiz_answers', JSON.stringify({answers,learningScore,region:regionPref}));
+    alert('Đã lưu tạm (localStorage).');
+  }
+
+  // ====== Submit & compute ======
+  function submitQuiz(){
+    learningScore = Number(document.getElementById('learningScore').value);
+    regionPref = document.getElementById('regionSelect').value;
+    // ensure at least some answers
+    if(Object.keys(answers).length < 6){
+      if(!confirm('Bạn mới trả lời ít câu. Tiếp tục vẫn OK?')) return;
+    }
+    // aggregate holland scores
+    const counts = {R:0,I:0,A:0,S:0,E:0,C:0};
+    Object.entries(answers).forEach(([qid,v])=>{
+      const dim = HOLLAND_KEYS[(Number(qid)-1)%6];
+      counts[dim] += Number(v);
+    });
+
+    const topMajors = ["Công nghệ thông tin","Kinh tế","Quản trị kinh doanh"]; // mock: in real app compute from MI, interests
+    const surveyResult = {counts, learningScore, topMajors, region:regionPref};
+    const recs = recommendSchools(surveyResult);
+
+    localStorage.setItem('cpf_result', JSON.stringify({surveyResult,recs}));
+    navTo('result');
+  }
+
+  // ====== Recommendation (mock AI-style) ======
+  function recommendSchools(surveyResult){
+    // simple scoring: overlap with topMajors + region bonus + learning fit + employment rate
+    return SCHOOLS.map(s => {
+      const majorOverlap = surveyResult.topMajors.filter(m => s.majors.includes(m)).length;
+      const regionBonus = surveyResult.region ? (s.region===surveyResult.region?1:0) : 0;
+      const learningFit = Math.max(0,1 - Math.abs(surveyResult.learningScore - 20)/10);
+      const score = majorOverlap*2 + regionBonus + learningFit*1.5 + s.employment_rate;
+      return {...s,matchScore:Math.round(score*100)/100};
+    }).sort((a,b)=>b.matchScore-a.matchScore);
+  }
+
+  // ====== Result rendering & charts ======
+  function renderResult(){
+    const raw = JSON.parse(localStorage.getItem('cpf_result') || 'null');
+    if(!raw){ alert('Chưa có kết quả — làm trắc nghiệm trước'); navTo('quiz'); return; }
+    const {surveyResult,recs} = raw;
+    // radar
+    const radarCtx = document.getElementById('radarChart').getContext('2d');
+    const radarLabels = HOLLAND_KEYS.map(k=>HOLLAND_LABELS[k]);
+    const radarData = HOLLAND_KEYS.map(k => surveyResult.counts[k] || 0);
+    if(radarChartInstance) radarChartInstance.destroy();
+    radarChartInstance = new Chart(radarCtx, {
+      type:'radar',
+      data:{labels:radarLabels,datasets:[{label:'Bạn',data:radarData,backgroundColor:'rgba(37,99,235,0.18)',borderColor:'rgba(37,99,235,0.9)',pointBackgroundColor:'#2563eb'}]},
+      options:{scales:{r:{beginAtZero:true}}}
+    });
+
+    // bar for learning
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    if(barChartInstance) barChartInstance.destroy();
+    barChartInstance = new Chart(barCtx, {
+      type:'bar',
+      data:{labels:['Điểm học lực'],datasets:[{label:'Điểm',data:[surveyResult.learningScore],backgroundColor:'#4338ca'}]},
+      options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,max:30}}}
+    });
+
+    // top majors
+    const majorBox = document.getElementById('topMajors');
+    majorBox.innerHTML = '';
+    surveyResult.topMajors.forEach(m=>{
+      const el = document.createElement('div');
+      el.className='chip';
+      el.innerText = m;
+      majorBox.appendChild(el);
+    });
+
+    // recommendations
+    const recBox = document.getElementById('recommendList');
+    recBox.innerHTML = '';
+    recs.slice(0,3).forEach(s=>{
+      const div = document.createElement('div');
+      div.className='card';
+      div.style.display='flex';div.style.justifyContent='space-between';div.style.alignItems='center';
+      div.innerHTML = `<div>
+        <div style="font-weight:600">${s.name}</div>
+        <div class="muted small">${s.majors.slice(0,2).join(', ')}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700">${Math.round(s.matchScore)}%</div>
+        <div class="muted small">Việc làm: ${Math.round(s.employment_rate*100)}%</div>
+        <button class="ghost small" style="margin-top:8px" onclick="openModal('${s.id}',${Math.round(s.matchScore)})">Xem chi tiết</button>
+      </div>`;
+      recBox.appendChild(div);
+    });
+  }
+
+  // ====== Schools list & filters ======
+  function renderSchools(){
+    applyFilters();
+  }
+
+  function applyFilters(){
+    const q = document.getElementById('searchSchool').value.trim().toLowerCase();
+    const region = document.getElementById('filterRegion').value;
+    const tuitionMax = Number(document.getElementById('filterTuition').value) || null;
+
+    const out = SCHOOLS.filter(s=>{
+      if(region && s.region !== region) return false;
+      if(tuitionMax && s.tuition > tuitionMax) return false;
+      if(q){
+        const text = (s.name + ' ' + s.majors.join(' ')).toLowerCase();
+        return text.includes(q);
+      }
+      return true;
+    });
+
+    const grid = document.getElementById('schoolsGrid');
+    grid.innerHTML = '';
+    out.forEach(s=>{
+      const card = document.createElement('div');
+      card.className='card hover-soft';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700">${s.name}</div>
+          <div class="muted small">${s.majors.slice(0,3).join(', ')}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700">${Math.round(s.employment_rate*100)}%</div>
+          <div class="muted small">${s.region} • ${s.tuition.toLocaleString()} VND</div>
+          <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+            <button class="ghost small" onclick="openModal('${s.id}',80)">Xem chi tiết</button>
+            <button class="btn-primary small" onclick="selectForCompare('${s.id}')">Chọn</button>
+          </div>
+        </div>
+      </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // ====== Modal detail ======
+  function openModal(id,fit=87){
+    const s = SCHOOLS.find(x=>x.id===id);
+    if(!s) return;
+    document.getElementById('modalTitle').innerText = s.name;
+    document.getElementById('modalRegion').innerText = s.region + ' • ' + s.tuition.toLocaleString() + ' VND';
+    const maj = document.getElementById('modalMajors');
+    maj.innerHTML = s.majors.map(m => `<li>• ${m}</li>`).join('');
+    const rev = document.getElementById('modalReviews');
+    rev.innerHTML = s.reviews.map(r=>`<div style="padding:8px;border-radius:8px;background:rgba(0,0,0,0.03);margin-bottom:6px"><div style="font-weight:600">${r.user}</div><div class="muted small">${r.text}</div></div>`).join('');
+
+    document.getElementById('modalFit').innerText = fit + '%';
+    document.getElementById('modal').style.display='flex';
+
+    // chart
+    const ctx = document.getElementById('modalChart').getContext('2d');
+    if(window._modalChart) window._modalChart.destroy();
+    window._modalChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels:['N-2','N-1','N'],datasets:[{label:'Điểm chuẩn',data:s.score_last3,backgroundColor:['#2563eb','#4338ca','#2563eb']}]},
+      options:{plugins:{legend:{display:false}}}
+    });
+  }
+  function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+  // ====== Compare ======
+  let compareSelected = [];
+  function selectForCompare(id){
+    if(compareSelected.includes(id)){ compareSelected = compareSelected.filter(x=>x!==id); }
+    else if(compareSelected.length<3) compareSelected.push(id);
+    renderCompare();
+    navTo('compare');
+  }
+
+  function renderCompare(){
+    const listDiv = document.getElementById('compareList');
+    listDiv.innerHTML = '';
+    SCHOOLS.forEach(s=>{
+      const chosen = compareSelected.includes(s.id);
+      const btnLabel = chosen? 'Đã chọn' : 'Chọn';
+      const btnStyle = chosen ? 'background:var(--primary);color:white;padding:6px 10px;border-radius:8px;border:none' : 'padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)';
+      const el = document.createElement('div');
+      el.className='card';
+      el.style.display='flex';el.style.alignItems='center';el.style.gap='8px';
+      el.innerHTML = `<div style="flex:1"><div style="font-weight:700">${s.name}</div><div class="muted small">${s.region}</div></div>
+        <div><button style="${btnStyle}" onclick="selectForCompare('${s.id}')">${btnLabel}</button></div>`;
+      listDiv.appendChild(el);
+    });
+
+    // table
+    const head = document.getElementById('compareHead');
+    const body = document.getElementById('compareBody');
+    head.innerHTML = '<th>Trường</th>' + compareSelected.map(id=>`<th>${SCHOOLS.find(s=>s.id===id).name}</th>`).join('');
+    body.innerHTML = '';
+    const rows = [
+      {k:'Điểm chuẩn',fn: s=>Math.round(s.score_last3[2])},
+      {k:'Học phí',fn: s=>s.tuition.toLocaleString()+' VND'},
+      {k:'Cơ sở vật chất',fn: s=>s.facilities_score+'/5'},
+      {k:'Tỉ lệ có việc',fn: s=>Math.round(s.employment_rate*100)+'%'},
+    ];
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="font-weight:600">${r.k}</td>` + compareSelected.map(id=>`<td>${r.fn(SCHOOLS.find(s=>s.id===id))}</td>`).join('');
+      body.appendChild(tr);
+    });
+  }
+
+  // ====== Init ======
+  function init(){
+    // default show home
+    navTo('home');
+
+    // Quiz: load from saved if exist
+    const saved = JSON.parse(localStorage.getItem('cpf_quiz_answers') || '{}');
+    if(Object.keys(saved).length) {
+      // prepopulate if user had progress
+      answers = saved.answers || {};
+      learningScore = saved.learningScore || 20;
+      regionPref = saved.region || '';
+    }
+
+    // search hook
+    document.getElementById('searchSchool').addEventListener('input', applyFilters);
+    document.getElementById('filterRegion').addEventListener('change', applyFilters);
+    document.getElementById('filterTuition').addEventListener('input', applyFilters);
+
+    // load result if any to show recommendations on home? (not necessary)
+  }
+
+  // start
+  init();
+</script>
+</body>
+</html>
